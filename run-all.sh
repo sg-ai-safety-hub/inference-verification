@@ -1,0 +1,1 @@
+concurrently --kill-others --names "api,dash" "uv run fastapi dev main.py" "pnpm -C dashboard dev"

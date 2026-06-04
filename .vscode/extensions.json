@@ -1,0 +1,11 @@
+{
+	"recommendations": [
+		"svelte.svelte-vscode",
+		"bradlc.vscode-tailwindcss",
+		"esbenp.prettier-vscode",
+		"dbaeumer.vscode-eslint",
+		"streetsidesoftware.code-spell-checker",
+		"ms-python.python",
+		"ms-python.black-formatter"
+	]
+}
