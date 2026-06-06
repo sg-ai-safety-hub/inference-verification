@@ -1,9 +1,12 @@
 {
   "version": "0.2",
-  "ignorePaths": ["pnpm-lock.yaml"],
+  "ignorePaths": [
+    "pnpm-lock.yaml"
+  ],
   "dictionaryDefinitions": [],
   "dictionaries": [],
   "words": [
+    "dotenv",
     "esbuild",
     "fastapi",
     "fontsource",

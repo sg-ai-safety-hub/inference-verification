@@ -2,10 +2,11 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { SendHorizontal } from '@lucide/svelte';
+	import SendHorizontal from '@lucide/svelte/icons/send-horizontal';
 	import ky from 'ky';
 	import { toast } from 'svelte-sonner';
 	import { fade, fly } from 'svelte/transition';
+	import { HOST_GATEWAY_URL } from '$app/env/public';
 
 	type Message = { role: 'user' | 'assistant'; content: string };
 
@@ -23,7 +24,7 @@
 
 		try {
 			const data = await ky
-				.post('http://localhost:8000/request', { json: { messages } })
+				.post(`${HOST_GATEWAY_URL}/request`, { json: { messages } })
 				.json<{ response_text: string }>();
 			messages.push({ role: 'assistant', content: data.response_text });
 		} catch (e) {
@@ -115,7 +116,7 @@
 				<Button
 					type="submit"
 					onclick={send}
-					class="size-8 shrink-0 rounded-lg transition-all duration-150 hover:scale-105 active:scale-95 disabled:scale-100 opacity-80"
+					class="size-8 shrink-0 rounded-lg opacity-80 transition-all duration-150 hover:scale-105 active:scale-95 disabled:scale-100"
 					variant="ghost"
 					size="icon"
 					disabled={loading || !input.trim()}

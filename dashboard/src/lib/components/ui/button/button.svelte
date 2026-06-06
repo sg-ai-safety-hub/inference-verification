@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import { resolve } from '$app/paths';
 	import { cn, type WithElementRef } from '$lib/utils.js';
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 	import { tv, type VariantProps } from 'tailwind-variants';
@@ -67,7 +68,7 @@
 		bind:this={ref}
 		data-slot="button"
 		class={cn(buttonVariants({ variant, size }), className)}
-		href={disabled ? undefined : href}
+		href={disabled ? undefined : resolve(href as any)}
 		aria-disabled={disabled}
 		role={disabled ? 'link' : undefined}
 		tabindex={disabled ? -1 : undefined}
