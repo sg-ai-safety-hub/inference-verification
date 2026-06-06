@@ -4,6 +4,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class Settings(BaseSettings):
@@ -13,10 +14,17 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
     mock_inference: bool = False
 
-
 settings = Settings()  # type: ignore
 client = OpenAI(base_url=settings.inference_url, api_key="unused")
+
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Message(BaseModel):
@@ -30,6 +38,7 @@ class InferenceRequest(BaseModel):
 
 class InferenceResponse(BaseModel):
     response_text: str
+
 
 @app.post("/request")
 def request_inference(body: InferenceRequest) -> InferenceResponse:
