@@ -1,14 +1,18 @@
 {
-    "version": "0.2",
-    "ignorePaths": [],
-    "dictionaryDefinitions": [],
-    "dictionaries": [],
-    "words": [
-        "fastapi",
-        "huggingface",
-        "ipykernel",
-        "vllm"
-    ],
-    "ignoreWords": [],
-    "import": []
+  "version": "0.2",
+  "ignorePaths": ["pnpm-lock.yaml"],
+  "dictionaryDefinitions": [],
+  "dictionaries": [],
+  "words": [
+    "esbuild",
+    "fastapi",
+    "fontsource",
+    "huggingface",
+    "ipykernel",
+    "oklch",
+    "shadcn",
+    "vllm"
+  ],
+  "ignoreWords": [],
+  "import": []
 }
