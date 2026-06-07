@@ -1,35 +1,47 @@
 <script lang="ts">
+	import { HOST_GATEWAY_URL } from '$app/env/public';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { api } from '$lib/utils';
 	import SendHorizontal from '@lucide/svelte/icons/send-horizontal';
-	import ky from 'ky';
+	import { HTTPError } from 'ky';
 	import { toast } from 'svelte-sonner';
 	import { fade, fly } from 'svelte/transition';
-	import { HOST_GATEWAY_URL } from '$app/env/public';
 
 	type Message = { role: 'user' | 'assistant'; content: string };
 
 	let messages: Message[] = $state([{ role: 'assistant', content: 'Hello! How can I help you?' }]);
 	let input = $state('');
 	let loading = $state(false);
+	let recomputationError = $state(false);
 
 	async function send() {
 		const text = input.trim();
 		if (!text || loading) return;
-
+		// Remove previous user message if any (this is result of a previous error)
+		if (messages.at(-1)?.role == 'user') {
+			messages.pop();
+		}
 		messages.push({ role: 'user', content: text });
 		input = '';
+		recomputationError = false;
 		loading = true;
-
 		try {
-			const data = await ky
+			const data = await api
 				.post(`${HOST_GATEWAY_URL}/request`, { json: { messages } })
-				.json<{ response_text: string }>();
-			messages.push({ role: 'assistant', content: data.response_text });
+				.json<{ responseText: string }>();
+			messages.push({ role: 'assistant', content: data.responseText });
 		} catch (e) {
-			messages.pop();
 			input = text;
+			// Handle recomputation error
+			if (e instanceof HTTPError && e.response.status === 502) {
+				if (e.data.detail === 'Recomputation failed') {
+					recomputationError = true;
+					return;
+				}
+			}
+			messages.pop();
 			toast.error('Error: Could not reach the server.');
 			console.error(e);
 		} finally {
@@ -46,12 +58,12 @@
 
 	let messagesEl: HTMLDivElement;
 	$effect(() => {
-		if (messagesEl && messages.length >= 0)
+		if (messagesEl && messages.length > 0)
 			messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
 	});
 </script>
 
-<Card class="flex w-full max-w-2xl flex-col gap-0" style="height: min(720px, 90vh)">
+<Card class="flex  w-2xl flex-col gap-0 h-96">
 	<CardHeader class="shrink-0 pb-4">
 		<CardTitle class="text-base font-semibold tracking-tight">Chat</CardTitle>
 	</CardHeader>
@@ -95,6 +107,15 @@
 							class="size-1.5 animate-bounce rounded-full bg-muted-foreground/60"
 							style="animation-delay: 300ms"
 						></span>
+					</div>
+				</div>
+			{/if}
+			{#if recomputationError}
+				<div class="flex justify-start" in:fade={{ duration: 120 }}>
+					<div
+						class="max-w-[80%] rounded-2xl bg-destructive/10 px-4 py-2.5 text-sm leading-relaxed text-destructive"
+					>
+						Error: Recomputation failed
 					</div>
 				</div>
 			{/if}

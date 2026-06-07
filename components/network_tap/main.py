@@ -32,17 +32,20 @@ def request_inference(
     raw_response = requests.post(
         f"{env.host_cluster_url}/request", json=signed_request.model_dump()
     )
+    raw_response.raise_for_status()
     response = SignedEnvelope[InferenceResponse].model_validate(raw_response.json())
 
     # Forward to recomputation cluster for verification
     print("Forwarding response for verification:", response.data.payload.response_text)
-    is_verified = requests.post(
+    raw_response = requests.post(
         f"{env.recomputation_cluster_url}/verify",
         json={
             "signed_request": signed_request.model_dump(),
             "signed_response": response.model_dump(),
         },
-    ).json()["verified"]
+    )
+    raw_response.raise_for_status()
+    is_verified = raw_response.json()["verified"]
 
     # Forward response to gateway if verified else throw error
     if is_verified:
@@ -51,4 +54,4 @@ def request_inference(
         return response
     else:
         print("Response verification failed")
-        raise HTTPException(status_code=502, detail="Response verification failed")
+        raise HTTPException(status_code=502, detail="Recomputation failed")

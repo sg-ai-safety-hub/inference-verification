@@ -1,6 +1,6 @@
 from openai import OpenAI
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from ..lib.utils import Message, InferenceRequest, InferenceResponse
 from ..lib.signed_envelope import SignedEnvelope
@@ -39,12 +39,23 @@ def request_inference(request: InferenceRequest) -> InferenceResponse:
     signed_request = SignedEnvelope[InferenceRequest].wrap(
         id=current_id, payload=request, key=env.host_key
     )
+
     # Forward request
     print("Forwarding request:", signed_request.data.payload.messages[-1].content)
     raw_response = requests.post(
         f"{env.network_tap_url}/request", json=signed_request.model_dump()
     )
-    # Verify and unwrap response
+
+    # Check for recomputation failure
+    if (
+        raw_response.status_code == 502
+        and raw_response.headers.get("Content-Type") == "application/json"
+        and raw_response.json().get("detail") == "Recomputation failed"
+    ):
+        raise HTTPException(status_code=502, detail="Recomputation failed")
+    raw_response.raise_for_status()
+
+    # Else, verify and return response
     response = (
         SignedEnvelope[InferenceResponse]
         .model_validate(raw_response.json())

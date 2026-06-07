@@ -13,7 +13,9 @@
     "huggingface",
     "ipykernel",
     "oklch",
+    "pycache",
     "shadcn",
+    "snakecase",
     "vllm"
   ],
   "ignoreWords": [],

@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Chat from './Chat.svelte';
+	import HostCluster from './HostCluster.svelte';
 </script>
 
-<div class="flex h-screen items-center justify-center bg-muted p-4">
+<div class="flex-col flex gap-3 items-center justify-center bg-muted p-4">
 	<Chat />
+	<HostCluster />
 </div>

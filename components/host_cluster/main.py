@@ -1,11 +1,12 @@
 from openai import OpenAI
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from fastapi import FastAPI, requests
+from fastapi import Body, FastAPI, requests
 from fastapi.middleware.cors import CORSMiddleware
 
 from ..lib.signed_envelope import SignedEnvelope
 from ..lib.utils import InferenceRequest, InferenceResponse
 from pathlib import Path
+import random
 
 
 class Settings(BaseSettings):
@@ -24,6 +25,15 @@ env = Settings()  # type: ignore
 client = OpenAI(base_url=env.inference_url, api_key="unused")
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+is_training = False
 
 
 @app.post("/request")
@@ -35,7 +45,7 @@ def request_inference(
 
     # Compute response
     print("Received inference request:", request.messages[-1].content)
-    response = run_inference(request)
+    response = run(request)
     print("Inference response:", response.response_text)
 
     # Sign and return response
@@ -46,15 +56,25 @@ def request_inference(
     )
 
 
-def run_inference(request: InferenceRequest) -> InferenceResponse:
-    if env.mock_inference:
+def run(request: InferenceRequest) -> InferenceResponse:
+    if is_training:
+        response_text = "".join(random.choices("0123456789abcdef", k=32))
+    elif env.mock_inference:
         # Give placeholder response to speed up development
-        return InferenceResponse(response_text="This is a placeholder response")
-    response = client.chat.completions.create(
-        messages=request.messages,  # type: ignore
-        reasoning_effort="none",
-        model=env.model,
-        max_tokens=env.max_tokens,
-        seed=0,
-    )
-    return InferenceResponse(response_text=response.choices[0].message.content or "")
+        response_text = "This is a placeholder response"
+    else:
+        response = client.chat.completions.create(
+            messages=request.messages,  # type: ignore
+            reasoning_effort="none",
+            model=env.model,
+            max_tokens=env.max_tokens,
+            seed=0,
+        )
+        response_text = response.choices[0].message.content or ""
+    return InferenceResponse(response_text=response_text)
+
+
+@app.post("/set-training")
+def set_training(new: bool = Body()):
+    global is_training
+    is_training = new
