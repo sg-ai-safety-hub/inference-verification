@@ -39,6 +39,8 @@ class SignedEnvelope(BaseModel, Generic[T]):
 
     @classmethod
     def _sign(cls, data: EnvelopeData[T], key: str) -> str:
+        # This implementation opens up the possibility of using signatures as a covert side channel
+        # Future work includes using verifiable random functions or cryptographic commitments instead.
         return hmac.new(
             key.encode(), data.model_dump_json().encode(), hashlib.sha256
         ).hexdigest()

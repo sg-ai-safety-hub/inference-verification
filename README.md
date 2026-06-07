@@ -6,7 +6,10 @@
 
 ### Install:
 
-Install pnpm + uv
+Requirements:
+
+- pnpm
+- uv
 
 ```bash
 pnpm add -g concurrently
@@ -26,7 +29,7 @@ docker create \
 
 <details> <summary>Notes</summary>
 
-- Set HF_Token for faster download
+- Set `HF_Token` for faster download
 - `KMP_TOPOLOGY_METHOD=flat` avoids `Assertion failure at kmp_affinity.cpp` errors when run in sandboxes
 
 </details>
@@ -35,6 +38,5 @@ docker create \
 
 ```bash
 docker start -i vllm
-uv run fastapi dev main.py
-pnpm -C dashboard dev
+./run-dev.sh
 ```

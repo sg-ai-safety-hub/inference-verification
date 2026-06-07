@@ -13,9 +13,8 @@ class Settings(BaseSettings):
     max_tokens: int
     model: str
     mock_inference: bool = False
-    host_key: str
     model_config = SettingsConfigDict(
-        env_file=(".env", Path(__file__).parent / ".env"),
+        env_file=(".env"),
         dotenv_filtering="only_existing",
     )
 
@@ -26,24 +25,28 @@ client = OpenAI(base_url=env.inference_url, api_key="unused")
 app = FastAPI()
 
 
-@app.post("/request")
-def request_inference(
+@app.post("/verify")
+def verify_inference(
     signed_request: SignedEnvelope[InferenceRequest],
-) -> SignedEnvelope[InferenceResponse]:
-    # Unwrap and verify request
-    request = signed_request.unwrap(key=env.host_key).payload
+    signed_response: SignedEnvelope[InferenceResponse],
+):
+    # Unwrap request and response
+    request = signed_request.data.payload
+    response = signed_response.data.payload
 
-    # Compute response
-    print("Received inference request:", request.messages[-1].content)
-    response = run_inference(request)
-    print("Inference response:", response.response_text)
+    # Recompute response
+    print(f"Running recomputation for message: {request.messages[-1].content}")
+    recomputed = run_inference(request)
 
-    # Sign and return response
-    return SignedEnvelope.wrap(
-        id=signed_request.data.id,  # Match ID
-        payload=response,
-        key=env.host_key,
-    )
+    # Compare responses
+    print(f"Received response:   {response.response_text}")
+    print(f"Recomputed response: {recomputed.response_text}")
+    verified = recomputed.response_text == response.response_text
+    if verified:
+        print("Verification succeeded")
+    else:
+        print("Verification failed")
+    return {"verified": verified}
 
 
 def run_inference(request: InferenceRequest) -> InferenceResponse:

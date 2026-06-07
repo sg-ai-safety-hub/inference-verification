@@ -10,7 +10,7 @@ from pathlib import Path
 
 class Settings(BaseSettings):
     host_key: str
-    host_cluster_url: str
+    network_tap_url: str
     model_config = SettingsConfigDict(
         env_file=(".env", Path(__file__).parent / ".env"),
         dotenv_filtering="only_existing",
@@ -42,7 +42,7 @@ def request_inference(request: InferenceRequest) -> InferenceResponse:
     # Forward request
     print("Forwarding request:", signed_request.data.payload.messages[-1].content)
     raw_response = requests.post(
-        f"{env.host_cluster_url}/request", json=signed_request.model_dump()
+        f"{env.network_tap_url}/request", json=signed_request.model_dump()
     )
     # Verify and unwrap response
     response = (
