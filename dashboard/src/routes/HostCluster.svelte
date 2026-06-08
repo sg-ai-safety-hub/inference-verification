@@ -77,7 +77,7 @@
 			<!-- Received response -->
 			{#if clusterState.response}
 				<div class="flex flex-col">
-					<span>Sending response:</span>
+					<span>Sending Response:</span>
 					<span class="break-all text-blue-600">{clusterState.response}</span>
 				</div>
 			{/if}

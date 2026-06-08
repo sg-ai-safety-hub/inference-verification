@@ -73,6 +73,17 @@ async def verify_inference(
     return {"verified": verified}
 
 
+@app.post("/clear")
+async def clear():
+    # Reset to ready
+    state["status"] = "Ready"
+    state["request"] = None
+    state["received_response"] = None
+    state["recomputed_response"] = None
+    state["verified"] = None
+    await sio.emit("state", state)
+
+
 # Stream results to dashboard
 async def log_chunk(chunk: str):
     state["recomputed_response"] = (state["recomputed_response"] or "") + chunk

@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { HOST_GATEWAY_URL } from '$app/env/public';
+	import {
+		HOST_CLUSTER_URL,
+		HOST_GATEWAY_URL,
+		RECOMPUTATION_CLUSTER_URL
+	} from '$app/env/public';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -28,6 +32,11 @@
 		recomputationError = false;
 		loading = true;
 		try {
+			// Reset cluster state to ready before submitting
+			await Promise.all([
+				api.post(`${HOST_CLUSTER_URL}/clear`),
+				api.post(`${RECOMPUTATION_CLUSTER_URL}/clear`)
+			]);
 			const data = await api
 				.post(`${HOST_GATEWAY_URL}/request`, { json: { messages }, timeout: false })
 				.json<{ responseText: string }>();
@@ -60,9 +69,7 @@
 	let messagesEl: HTMLDivElement;
 	$effect(() => {
 		if (messagesEl && messages.length > 0) {
-			setTimeout(() => {
 				messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
-			}, 100); // Wait to ensure elements rendered
 		}
 	});
 </script>
@@ -98,7 +105,7 @@
 			{#if loading}
 				<!-- Loading indicator -->
 				<div class="flex justify-start" in:fade={{ duration: 120 }}>
-					<div class="flex items-center gap-1 rounded-2xl bg-muted px-4 py-3">
+					<div class="flex items-center gap-1 rounded-2xl bg-muted px-4 py-3 m-1.5">
 						<span
 							class="size-1.5 animate-bounce rounded-full bg-muted-foreground/60"
 							style="animation-delay: 0ms"

@@ -91,3 +91,12 @@ async def log_chunk(chunk: str):
 async def set_training(new: bool = Body()):
     state["is_training"] = new
     await sio.emit("state", state)
+
+
+@app.post("/clear")
+async def clear():
+    # Reset to ready, preserving the training mode toggle
+    state["status"] = "Ready"
+    state["request"] = None
+    state["response"] = None
+    await sio.emit("state", state)
