@@ -2,73 +2,108 @@
 	import { HOST_CLUSTER_URL } from '$app/env/public';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { api } from '$lib/utils';
+	import { io, type Socket } from 'socket.io-client';
+	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-	type LogEntry = { time: string; level: 'INFO' | 'WARN' | 'ERROR'; message: string };
+	type State = {
+		status: 'Ready' | 'Running' | 'Done';
+		is_training: boolean;
+		request: string | null;
+		response: string | null;
+	};
 
-	let logs: LogEntry[] = $state([]);
+	let connected = $state(false);
+	let clusterState: State = $state({
+		status: 'Ready',
+		is_training: false,
+		request: null,
+		response: null
+	});
 
-	let logsEl: HTMLDivElement;
+	let socket: Socket;
+
+	onMount(() => {
+		socket = io(HOST_CLUSTER_URL);
+		socket.on('connect', () => (connected = true));
+		socket.on('disconnect', () => (connected = false));
+		socket.on('state', (data: State) => (clusterState = data));
+	});
+
+	onDestroy(() => socket?.disconnect());
 
 	async function setTraining(isTraining: boolean) {
 		try {
 			await api.post(`${HOST_CLUSTER_URL}/set-training`, { json: isTraining });
-			const now = new Date().toTimeString().slice(0, 8);
-			logs = [
-				...logs,
-				{
-					time: now,
-					level: 'INFO',
-					message: isTraining ? 'Training started by user' : 'Training stopped by user'
-				}
-			];
-			setTimeout(() => logsEl?.scrollTo({ top: logsEl.scrollHeight, behavior: 'smooth' }), 0);
 		} catch (e) {
 			toast.error('Error: Could not reach the server.');
 			console.error(e);
 		}
 	}
-
-	const levelClass: Record<LogEntry['level'], string> = {
-		INFO: 'text-blue-400',
-		WARN: 'text-yellow-400',
-		ERROR: 'text-red-400'
-	};
 </script>
 
-<Card class="flex flex-col gap-0 h-96 w-2xl">
+<Card class="flex max-w-full  h-96 w-2xl flex-col gap-0">
 	<CardHeader class="pb-3">
 		<CardTitle class="text-base font-semibold tracking-tight">Host Cluster</CardTitle>
 	</CardHeader>
 	<CardContent class="flex min-h-0 flex-1 flex-row gap-3 p-3 pt-0">
-		<!-- Log panel -->
+		<!-- Status panel -->
 		<div
-			bind:this={logsEl}
-			class="flex-1 overflow-y-auto rounded-md border border-border bg-zinc-950 p-3 font-mono text-xs"
+			class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-border text-sm bg-zinc-100 p-3 font-mono"
 		>
-			<div class="mb-1 text-zinc-500">Logs:</div>
-			{#each logs as entry, i (i)}
-				<div class="flex gap-2 leading-5">
-					<span class="shrink-0 text-zinc-500">{entry.time}</span>
-					<span class="w-10 shrink-0 {levelClass[entry.level]}">{entry.level}</span>
-					<span class="text-zinc-200">{entry.message}</span>
-				</div>
-			{/each}
+			<!-- Connection / status -->
+			<div class="flex items-center gap-2">
+				<span class="size-2 shrink-0 rounded-full {connected ? 'bg-green-500' : 'bg-zinc-600'}"
+				></span>
+				<span class="">{connected ? clusterState.status : 'Disconnected'}</span>
+			</div>
+
+			<!-- Mode -->
+			<div class="flex items-center gap-2">
+				<span >Mode:</span>
+				<span class="font-bold {clusterState.is_training ? 'text-red-500' : 'text-green-600'}">
+					{clusterState.is_training ? 'Training' : 'Inference'}
+				</span>
+			</div>
+
+			<!-- Received request -->
+			<div class="flex flex-col gap-1">
+				<span>Received Request:</span>
+				{#if clusterState.request}
+					<span class="wrap-break-word text-blue-600">{clusterState.request}</span>
+				{:else}
+					<span class="text-zinc-600">—</span>
+				{/if}
+			</div>
+
+			<!-- Received response -->
+			<div class="flex flex-col gap-1">
+				<span >Sending response:</span>
+				{#if clusterState.response}
+					<span class="wrap-break-word text-blue-600">{clusterState.response}</span>
+				{:else}
+					<span class="text-zinc-600">—</span>
+				{/if}
+			</div>
 		</div>
 
 		<!-- Controls -->
 		<div class="flex flex-col gap-2">
 			<button
-				class="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-500 active:bg-green-700"
-				onclick={() => setTraining(true)}
-			>
-				Start Training
-			</button>
-			<button
-				class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500 active:bg-red-700"
+				class="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors {!clusterState.is_training
+					? 'bg-green-600 ring-2 ring-green-300'
+					: 'bg-green-600/40 hover:bg-green-500'}"
 				onclick={() => setTraining(false)}
 			>
-				Stop Training
+				Run Inference
+			</button>
+			<button
+				class="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors {clusterState.is_training
+					? 'bg-red-600 ring-2 ring-red-300'
+					: 'bg-red-600/40 hover:bg-red-500'}"
+				onclick={() => setTraining(true)}
+			>
+				Run Training
 			</button>
 		</div>
 	</CardContent>

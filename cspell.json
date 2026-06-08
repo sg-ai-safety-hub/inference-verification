@@ -6,6 +6,7 @@
   "dictionaryDefinitions": [],
   "dictionaries": [],
   "words": [
+    "ASGI",
     "dotenv",
     "esbuild",
     "fastapi",

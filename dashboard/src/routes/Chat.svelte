@@ -63,8 +63,8 @@
 	});
 </script>
 
-<Card class="flex  w-2xl flex-col gap-0 h-96">
-	<CardHeader class="shrink-0 pb-4">
+<Card class="flex max-w-full w-2xl flex-col gap-0 h-96">
+	<CardHeader class="pb-2">
 		<CardTitle class="text-base font-semibold tracking-tight">Chat</CardTitle>
 	</CardHeader>
 	<CardContent class="flex min-h-0 flex-1 flex-col overflow-hidden p-0">

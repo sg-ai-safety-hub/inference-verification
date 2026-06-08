@@ -2,6 +2,7 @@ from openai import OpenAI
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from fastapi import Body, FastAPI, requests
 from fastapi.middleware.cors import CORSMiddleware
+import socketio
 
 from ..lib.signed_envelope import SignedEnvelope
 from ..lib.utils import InferenceRequest, InferenceResponse
@@ -32,21 +33,51 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+sio = socketio.AsyncServer(
+    # CORS is handled by FastAPI's CORSMiddleware; leaving Socket.IO's own CORS
+    # enabled would add a second Access-Control-Allow-Origin header.
+    async_mode="asgi",
+    cors_allowed_origins=[],
+)
+app.mount("/socket.io", socketio.ASGIApp(sio, socketio_path=""))
 
-is_training = False
+
+state = {
+    "is_training": False,
+    "status": "Ready",
+    "request": None,
+    "response": None,
+}
+
+
+@sio.event
+async def connect(sid, environ, auth):
+    # Send state on connect
+    await sio.emit("state", state, to=sid)
 
 
 @app.post("/request")
-def request_inference(
+async def request_inference(
     signed_request: SignedEnvelope[InferenceRequest],
 ) -> SignedEnvelope[InferenceResponse]:
     # Unwrap and verify request
     request = signed_request.unwrap(key=env.host_key).payload
 
+    # Broadcast the received request
+    state["status"] = "Running"
+    state["request"] = request.messages[-1].content
+    state["response"] = ""
+    await sio.emit("state", state)
+
     # Compute response
     print("Received inference request:", request.messages[-1].content)
     response = run(request)
     print("Inference response:", response.response_text)
+
+    # Broadcast the computed response
+    state["status"] = "Done"
+    state["response"] = response.response_text
+    await sio.emit("state", state)
 
     # Sign and return response
     return SignedEnvelope.wrap(
@@ -57,7 +88,7 @@ def request_inference(
 
 
 def run(request: InferenceRequest) -> InferenceResponse:
-    if is_training:
+    if state["is_training"]:
         response_text = "".join(random.choices("0123456789abcdef", k=32))
     elif env.mock_inference:
         # Give placeholder response to speed up development
@@ -75,6 +106,6 @@ def run(request: InferenceRequest) -> InferenceResponse:
 
 
 @app.post("/set-training")
-def set_training(new: bool = Body()):
-    global is_training
-    is_training = new
+async def set_training(new: bool = Body()):
+    state["is_training"] = new
+    await sio.emit("state", state)
