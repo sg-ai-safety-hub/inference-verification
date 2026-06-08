@@ -27,10 +27,12 @@ export const api = ky.create({
 						return response; // Only transform if it's a JSON object
 					}
 					const camelJson = camelcaseKeys(originalJson, { deep: true });
+					const headers = new Headers(response.headers);
+					headers.delete('content-length');
 					return new Response(JSON.stringify(camelJson), {
 						status: response.status,
 						statusText: response.statusText,
-						headers: response.headers
+						headers
 					});
 				}
 			}

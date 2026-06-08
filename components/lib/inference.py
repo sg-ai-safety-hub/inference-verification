@@ -54,6 +54,8 @@ async def run_inference(
             stream=True,
         )
         for chunk in response:
+            if not chunk.choices:
+                continue
             content = chunk.choices[0].delta.content
             if content:
                 await handle_chunk(content)
