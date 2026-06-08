@@ -6,7 +6,6 @@
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/geist-mono/wght.css';
 
-
 @custom-variant dark (&:is(.dark *));
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';

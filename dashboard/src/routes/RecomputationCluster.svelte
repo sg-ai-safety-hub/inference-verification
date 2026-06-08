@@ -33,14 +33,14 @@
 	onDestroy(() => socket?.disconnect());
 </script>
 
-<Card class="flex max-w-full  h-96 w-2xl flex-col gap-0">
+<Card class="flex h-96  w-2xl max-w-full flex-col gap-0">
 	<CardHeader class="pb-3">
 		<CardTitle class="text-base font-semibold tracking-tight">Recomputation Cluster</CardTitle>
 	</CardHeader>
 	<CardContent class="flex min-h-0 flex-1 flex-row gap-3 p-3 pt-0">
 		<!-- Status panel -->
 		<div
-			class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-border text-sm bg-zinc-100 p-3 font-mono"
+			class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-border bg-zinc-100 p-3 font-mono text-sm"
 		>
 			<!-- Connection / status -->
 			<div class="flex items-center gap-2">
