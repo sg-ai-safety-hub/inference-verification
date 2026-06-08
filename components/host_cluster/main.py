@@ -34,10 +34,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 sio = socketio.AsyncServer(
-    # CORS is handled by FastAPI's CORSMiddleware; leaving Socket.IO's own CORS
-    # enabled would add a second Access-Control-Allow-Origin header.
     async_mode="asgi",
-    cors_allowed_origins=[],
+    cors_allowed_origins=[],  # Handled by FastAPI
 )
 app.mount("/socket.io", socketio.ASGIApp(sio, socketio_path=""))
 

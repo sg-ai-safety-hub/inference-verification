@@ -4,5 +4,8 @@ export const variables = {
 	},
 	HOST_CLUSTER_URL: {
 		public: true
+	},
+	RECOMPUTATION_CLUSTER_URL: {
+		public: true
 	}
 };

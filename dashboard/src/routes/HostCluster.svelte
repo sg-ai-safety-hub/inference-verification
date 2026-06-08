@@ -60,47 +60,43 @@
 
 			<!-- Mode -->
 			<div class="flex items-center gap-2">
-				<span >Mode:</span>
+				<span>Mode:</span>
 				<span class="font-bold {clusterState.is_training ? 'text-red-500' : 'text-green-600'}">
 					{clusterState.is_training ? 'Training' : 'Inference'}
 				</span>
 			</div>
 
 			<!-- Received request -->
-			<div class="flex flex-col gap-1">
-				<span>Received Request:</span>
-				{#if clusterState.request}
+			{#if clusterState.request}
+				<div class="flex flex-col gap-1">
+					<span>Received Request:</span>
 					<span class="wrap-break-word text-blue-600">{clusterState.request}</span>
-				{:else}
-					<span class="text-zinc-600">—</span>
-				{/if}
-			</div>
+				</div>
+			{/if}
 
 			<!-- Received response -->
-			<div class="flex flex-col gap-1">
-				<span >Sending response:</span>
-				{#if clusterState.response}
+			{#if clusterState.response}
+				<div class="flex flex-col gap-1">
+					<span>Sending response:</span>
 					<span class="wrap-break-word text-blue-600">{clusterState.response}</span>
-				{:else}
-					<span class="text-zinc-600">—</span>
-				{/if}
-			</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Controls -->
 		<div class="flex flex-col gap-2">
 			<button
 				class="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors {!clusterState.is_training
-					? 'bg-green-600 ring-2 ring-green-300'
-					: 'bg-green-600/40 hover:bg-green-500'}"
+					? 'bg-green-600'
+					: 'bg-green-600/40 hover:bg-green-600'}"
 				onclick={() => setTraining(false)}
 			>
 				Run Inference
 			</button>
 			<button
 				class="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors {clusterState.is_training
-					? 'bg-red-600 ring-2 ring-red-300'
-					: 'bg-red-600/40 hover:bg-red-500'}"
+					? 'bg-red-600'
+					: 'bg-red-600/40 hover:bg-red-600'}"
 				onclick={() => setTraining(true)}
 			>
 				Run Training
