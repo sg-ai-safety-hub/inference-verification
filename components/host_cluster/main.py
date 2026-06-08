@@ -1,20 +1,15 @@
-from openai import OpenAI
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from fastapi import Body, FastAPI, requests
+from fastapi import Body, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import socketio
 
+from ..lib.inference import run_inference
 from ..lib.signed_envelope import SignedEnvelope
 from ..lib.utils import InferenceRequest, InferenceResponse
 from pathlib import Path
-import random
 
 
 class Settings(BaseSettings):
-    inference_url: str
-    max_tokens: int
-    model: str
-    mock_inference: bool = False
     host_key: str
     model_config = SettingsConfigDict(
         env_file=(".env", Path(__file__).parent / ".env"),
@@ -23,7 +18,6 @@ class Settings(BaseSettings):
 
 
 env = Settings()  # type: ignore
-client = OpenAI(base_url=env.inference_url, api_key="unused")
 
 app = FastAPI()
 app.add_middleware(
@@ -69,7 +63,9 @@ async def request_inference(
 
     # Compute response
     print("Received inference request:", request.messages[-1].content)
-    response = run(request)
+    response = await run_inference(
+        request, on_chunk=log_chunk, simulate_training=lambda: state["is_training"]
+    )
     print("Inference response:", response.response_text)
 
     # Broadcast the computed response
@@ -85,22 +81,10 @@ async def request_inference(
     )
 
 
-def run(request: InferenceRequest) -> InferenceResponse:
-    if state["is_training"]:
-        response_text = "".join(random.choices("0123456789abcdef", k=32))
-    elif env.mock_inference:
-        # Give placeholder response to speed up development
-        response_text = "This is a placeholder response"
-    else:
-        response = client.chat.completions.create(
-            messages=request.messages,  # type: ignore
-            reasoning_effort="none",
-            model=env.model,
-            max_tokens=env.max_tokens,
-            seed=0,
-        )
-        response_text = response.choices[0].message.content or ""
-    return InferenceResponse(response_text=response_text)
+# Stream results to dashboard
+async def log_chunk(chunk: str):
+    state["response"] = (state["response"] or "") + chunk
+    await sio.emit("state", state)
 
 
 @app.post("/set-training")

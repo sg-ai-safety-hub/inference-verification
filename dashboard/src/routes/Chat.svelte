@@ -29,7 +29,7 @@
 		loading = true;
 		try {
 			const data = await api
-				.post(`${HOST_GATEWAY_URL}/request`, { json: { messages } })
+				.post(`${HOST_GATEWAY_URL}/request`, { json: { messages }, timeout: false })
 				.json<{ responseText: string }>();
 			messages.push({ role: 'assistant', content: data.responseText });
 		} catch (e) {
@@ -56,21 +56,25 @@
 		}
 	}
 
+	// Scroll when new messages are added
 	let messagesEl: HTMLDivElement;
 	$effect(() => {
-		if (messagesEl && messages.length > 0)
-			messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+		if (messagesEl && messages.length > 0) {
+			setTimeout(() => {
+				messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+			}, 100); // Wait to ensure elements rendered
+		}
 	});
 </script>
 
-<Card class="flex max-w-full w-2xl flex-col gap-0 h-96">
+<Card class="flex h-96 w-2xl max-w-full flex-col gap-0">
 	<CardHeader class="pb-2">
 		<CardTitle class="text-base font-semibold tracking-tight">Chat</CardTitle>
 	</CardHeader>
 	<CardContent class="flex min-h-0 flex-1 flex-col overflow-hidden p-0">
 		<div
 			bind:this={messagesEl}
-			class="flex flex-1 scrollbar-none flex-col gap-3 overflow-y-auto border-t border-border/40 px-4 py-4"
+			class="flex flex-1 scrollbar-none flex-col gap-3 overflow-y-auto border-t border-border/40 px-4 py-3"
 		>
 			{#if messages.length === 0}
 				<p class="m-auto text-sm text-muted-foreground" transition:fade={{ duration: 150 }}>

@@ -34,10 +34,10 @@
 </script>
 
 <Card class="flex h-96  w-2xl max-w-full flex-col gap-0">
-	<CardHeader class="pb-3">
+	<CardHeader class="px-5 pb-3">
 		<CardTitle class="text-base font-semibold tracking-tight">Recomputation Cluster</CardTitle>
 	</CardHeader>
-	<CardContent class="flex min-h-0 flex-1 flex-row gap-3 p-3 pt-0">
+	<CardContent class="flex min-h-0 flex-1 flex-row gap-3 p-5 pt-0">
 		<!-- Status panel -->
 		<div
 			class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-border bg-zinc-100 p-3 font-mono text-sm"
@@ -53,7 +53,7 @@
 			{#if clusterState.request}
 				<div class="flex flex-col">
 					<span>Received Request:</span>
-					<span class="wrap-break-word text-blue-600">{clusterState.request}</span>
+					<span class="break-all text-blue-600">{clusterState.request}</span>
 				</div>
 			{/if}
 
@@ -61,7 +61,7 @@
 			{#if clusterState.received_response}
 				<div class="flex flex-col">
 					<span>Received Response:</span>
-					<span class="wrap-break-word text-blue-600">{clusterState.received_response}</span>
+					<span class="break-all text-blue-600">{clusterState.received_response}</span>
 				</div>
 			{/if}
 
@@ -69,7 +69,7 @@
 			{#if clusterState.recomputed_response}
 				<div class="flex flex-col">
 					<span>Recomputed Response:</span>
-					<span class="wrap-break-word text-blue-600">{clusterState.recomputed_response}</span>
+					<span class="break-all text-blue-600">{clusterState.recomputed_response}</span>
 				</div>
 			{/if}
 

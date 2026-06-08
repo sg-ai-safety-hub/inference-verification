@@ -1,11 +1,9 @@
-from openai import OpenAI
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from ..lib.utils import Message, InferenceRequest, InferenceResponse
-from ..lib.signed_envelope import SignedEnvelope
+from pydantic_settings import BaseSettings, SettingsConfigDict
 import requests
-from pathlib import Path
+
+from ..lib.signed_envelope import SignedEnvelope
+from ..lib.utils import InferenceRequest, InferenceResponse, check_response
 
 
 class Settings(BaseSettings):
@@ -32,7 +30,7 @@ def request_inference(
     raw_response = requests.post(
         f"{env.host_cluster_url}/request", json=signed_request.model_dump()
     )
-    raw_response.raise_for_status()
+    check_response(raw_response)
     response = SignedEnvelope[InferenceResponse].model_validate(raw_response.json())
 
     # Forward to recomputation cluster for verification
@@ -44,7 +42,8 @@ def request_inference(
             "signed_response": response.model_dump(),
         },
     )
-    raw_response.raise_for_status()
+    check_response(raw_response)
+
     is_verified = raw_response.json()["verified"]
 
     # Forward response to gateway if verified else throw error

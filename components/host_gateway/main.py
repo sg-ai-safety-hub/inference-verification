@@ -1,11 +1,12 @@
-from openai import OpenAI
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from ..lib.utils import Message, InferenceRequest, InferenceResponse
-from ..lib.signed_envelope import SignedEnvelope
+from pydantic_settings import BaseSettings, SettingsConfigDict
 import requests
-from pathlib import Path
+
+from ..lib.signed_envelope import SignedEnvelope
+from ..lib.utils import InferenceRequest, InferenceResponse, check_response
 
 
 class Settings(BaseSettings):
@@ -53,7 +54,7 @@ def request_inference(request: InferenceRequest) -> InferenceResponse:
         and raw_response.json().get("detail") == "Recomputation failed"
     ):
         raise HTTPException(status_code=502, detail="Recomputation failed")
-    raw_response.raise_for_status()
+    check_response(raw_response)
 
     # Else, verify and return response
     response = (
