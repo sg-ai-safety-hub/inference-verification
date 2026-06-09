@@ -1,13 +1,17 @@
 <script lang="ts">
-	import {
-		HOST_CLUSTER_URL,
-		HOST_GATEWAY_URL,
-		RECOMPUTATION_CLUSTER_URL
-	} from '$app/env/public';
+	import { HOST_CLUSTER_URL, HOST_GATEWAY_URL, RECOMPUTATION_CLUSTER_URL } from '$app/env/public';
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardAction,
+		CardContent,
+		CardFooter,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { api, cn } from '$lib/utils';
+	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import SendHorizontal from '@lucide/svelte/icons/send-horizontal';
 	import { HTTPError } from 'ky';
 	import { toast } from 'svelte-sonner';
@@ -60,6 +64,22 @@
 		}
 	}
 
+	async function reset() {
+		if (loading) return;
+		messages.splice(1); // Retain only the initial message
+		input = '';
+		recomputationError = false;
+		try {
+			await Promise.all([
+				api.post(`${HOST_CLUSTER_URL}/clear`),
+				api.post(`${RECOMPUTATION_CLUSTER_URL}/clear`)
+			]);
+		} catch (e) {
+			toast.error('Error: Could not clear cluster states');
+			console.error(e);
+		}
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
@@ -71,7 +91,7 @@
 	let messagesEl: HTMLDivElement;
 	$effect(() => {
 		if (messagesEl && messages.length > 0) {
-				messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+			messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
 		}
 	});
 </script>
@@ -79,6 +99,18 @@
 <Card class={cn('flex h-96 w-2xl max-w-full flex-col gap-0', className)}>
 	<CardHeader class="pb-2">
 		<CardTitle class="text-base font-semibold tracking-tight">Chat</CardTitle>
+		<CardAction>
+			<Button
+				onclick={reset}
+				class="size-7 rounded-lg text-muted-foreground/0 transition-colors duration-150 hover:text-muted-foreground disabled:opacity-100"
+				variant="ghost"
+				size="icon"
+				disabled={loading}
+				title="Reset conversation"
+			>
+				<RotateCcw class="size-3.5" />
+			</Button>
+		</CardAction>
 	</CardHeader>
 	<CardContent class="flex min-h-0 flex-1 flex-col overflow-hidden p-0">
 		<div
@@ -107,7 +139,7 @@
 			{#if loading}
 				<!-- Loading indicator -->
 				<div class="flex justify-start" in:fade={{ duration: 120 }}>
-					<div class="flex items-center gap-1 rounded-2xl bg-muted px-4 py-3 m-1.5">
+					<div class="m-1.5 flex items-center gap-1 rounded-2xl bg-muted px-4 py-3">
 						<span
 							class="size-1.5 animate-bounce rounded-full bg-muted-foreground/60"
 							style="animation-delay: 0ms"
