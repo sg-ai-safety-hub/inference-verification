@@ -4,7 +4,7 @@
 	import RecomputationCluster from './RecomputationCluster.svelte';
 </script>
 
-<div class="flex flex-wrap  items-center justify-center gap-5 bg-muted p-4">
+<div class="flex flex-wrap min-h-screen items-start content-center justify-center gap-5 bg-muted p-4">
 	<Chat />
 	<HostCluster />
 	<RecomputationCluster />

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { RECOMPUTATION_CLUSTER_URL } from '$app/env/public';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { cn } from '$lib/utils';
 	import { io, type Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 
@@ -11,6 +12,8 @@
 		recomputed_response: string | null;
 		verified: boolean | null;
 	};
+
+	let { class: className }: { class?: string } = $props();
 
 	let connected = $state(false);
 	let clusterState: State = $state({
@@ -33,14 +36,14 @@
 	onDestroy(() => socket?.disconnect());
 </script>
 
-<Card class="flex h-96  w-2xl max-w-full flex-col gap-0">
+<Card class={cn('flex h-96 w-2xl max-w-full flex-col gap-0', className)}>
 	<CardHeader class="px-5 pb-3">
 		<CardTitle class="text-base font-semibold tracking-tight">Recomputation Cluster</CardTitle>
 	</CardHeader>
 	<CardContent class="flex min-h-0 flex-1 flex-row gap-3 p-5 pt-0">
 		<!-- Status panel -->
 		<div
-			class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-border bg-zinc-100 p-3 font-mono text-sm"
+			class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-border bg-zinc-100 p-3 font-mono text-base"
 		>
 			<!-- Connection / status -->
 			<div class="flex items-center gap-2">

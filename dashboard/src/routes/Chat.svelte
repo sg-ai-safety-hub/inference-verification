@@ -7,13 +7,15 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { api } from '$lib/utils';
+	import { api, cn } from '$lib/utils';
 	import SendHorizontal from '@lucide/svelte/icons/send-horizontal';
 	import { HTTPError } from 'ky';
 	import { toast } from 'svelte-sonner';
 	import { fade, fly } from 'svelte/transition';
 
 	type Message = { role: 'user' | 'assistant'; content: string };
+
+	let { class: className }: { class?: string } = $props();
 
 	let messages: Message[] = $state([{ role: 'assistant', content: 'Hello! How can I help you?' }]);
 	let input = $state('');
@@ -74,7 +76,7 @@
 	});
 </script>
 
-<Card class="flex h-96 w-2xl max-w-full flex-col gap-0">
+<Card class={cn('flex h-96 w-2xl max-w-full flex-col gap-0', className)}>
 	<CardHeader class="pb-2">
 		<CardTitle class="text-base font-semibold tracking-tight">Chat</CardTitle>
 	</CardHeader>

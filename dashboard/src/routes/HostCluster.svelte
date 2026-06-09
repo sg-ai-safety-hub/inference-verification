@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { HOST_CLUSTER_URL } from '$app/env/public';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { api } from '$lib/utils';
+	import { api, cn } from '$lib/utils';
 	import { io, type Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -12,6 +12,8 @@
 		request: string | null;
 		response: string | null;
 	};
+
+	let { class: className }: { class?: string } = $props();
 
 	let connected = $state(false);
 	let clusterState: State = $state({
@@ -42,14 +44,14 @@
 	}
 </script>
 
-<Card class="flex h-96  w-2xl max-w-full flex-col gap-0">
+<Card class={cn('flex h-96 w-2xl max-w-full flex-col gap-0', className)}>
 	<CardHeader class="px-5 pb-3">
 		<CardTitle class="text-base font-semibold tracking-tight">Host Cluster</CardTitle>
 	</CardHeader>
 	<CardContent class="flex min-h-0 flex-1 flex-row gap-3 p-5 pt-0">
 		<!-- Status panel -->
 		<div
-			class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-border bg-zinc-100 p-3 font-mono text-sm"
+			class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-border bg-zinc-100 p-3 font-mono text-base"
 		>
 			<!-- Connection / status -->
 			<div class="flex items-center gap-2">
@@ -84,9 +86,9 @@
 		</div>
 
 		<!-- Controls -->
-		<div class="flex flex-col gap-2">
+		<div class="flex flex-col gap-3">
 			<button
-				class="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors {!clusterState.is_training
+				class="rounded-md px-4 py-3 text-base font-medium text-white transition-colors {!clusterState.is_training
 					? 'bg-green-600'
 					: 'bg-green-600/40 hover:bg-green-600'}"
 				onclick={() => setTraining(false)}
@@ -94,7 +96,7 @@
 				Run Inference
 			</button>
 			<button
-				class="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors {clusterState.is_training
+				class="rounded-md px-4 py-3 text-base font-medium text-white transition-colors {clusterState.is_training
 					? 'bg-red-600'
 					: 'bg-red-600/40 hover:bg-red-600'}"
 				onclick={() => setTraining(true)}
