@@ -1,7 +1,20 @@
+import secrets
 from typing import Literal
-from fastapi import HTTPException
+from fastapi import Header, HTTPException
 from pydantic import BaseModel
 import requests
+
+
+# Check for bearer token
+def require_key(api_key: str):
+    def dependency(authorization: str = Header("")):
+        if not api_key: # Auth disabled
+            return
+        scheme, _, token = authorization.partition(" ")
+        if scheme.lower() != "bearer" or not secrets.compare_digest(token, api_key):
+            raise HTTPException(status_code=401, detail="Invalid API key")
+
+    return dependency
 
 
 class Message(BaseModel):

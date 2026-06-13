@@ -1,13 +1,24 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic_settings import BaseSettings, SettingsConfigDict
 import socketio
 
 from ..lib.inference import run_inference
 from ..lib.signed_envelope import SignedEnvelope
-from ..lib.utils import InferenceRequest, InferenceResponse
+from ..lib.utils import InferenceRequest, InferenceResponse, require_key
 
 
-app = FastAPI()
+class Settings(BaseSettings):
+    api_key: str
+    model_config = SettingsConfigDict(
+        env_file=(".env"),
+        dotenv_filtering="only_existing",
+    )
+
+
+env = Settings()  # type: ignore
+
+app = FastAPI(dependencies=[Depends(require_key(env.api_key))])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],

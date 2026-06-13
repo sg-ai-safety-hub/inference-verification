@@ -1,14 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import requests
 
 from ..lib.signed_envelope import SignedEnvelope
-from ..lib.utils import InferenceRequest, InferenceResponse, check_response
+from ..lib.utils import InferenceRequest, InferenceResponse, check_response, require_key
 
 
 class Settings(BaseSettings):
     host_cluster_url: str
     recomputation_cluster_url: str
+    api_key: str
     model_config = SettingsConfigDict(
         env_file=(".env"),
         dotenv_filtering="only_existing",
@@ -17,7 +18,7 @@ class Settings(BaseSettings):
 
 env = Settings()  # type: ignore
 
-app = FastAPI()
+app = FastAPI(dependencies=[Depends(require_key(env.api_key))])
 
 
 @app.post("/request")
@@ -28,7 +29,9 @@ def request_inference(
     # More sanitation and bandwidth limiting could be added in the future
     print("Forwarding request:", signed_request.data.payload.messages[-1].content)
     raw_response = requests.post(
-        f"{env.host_cluster_url}/request", json=signed_request.model_dump()
+        f"{env.host_cluster_url}/request",
+        json=signed_request.model_dump(),
+        headers={"Authorization": f"Bearer {env.api_key}"},
     )
     check_response(raw_response)
     response = SignedEnvelope[InferenceResponse].model_validate(raw_response.json())
@@ -41,6 +44,7 @@ def request_inference(
             "signed_request": signed_request.model_dump(),
             "signed_response": response.model_dump(),
         },
+        headers={"Authorization": f"Bearer {env.api_key}"},
     )
     check_response(raw_response)
 

@@ -10,7 +10,7 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { api, cn } from '$lib/utils';
+	import { api, cn, isInvalidApiKeyError } from '$lib/utils';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import SendHorizontal from '@lucide/svelte/icons/send-horizontal';
 	import { HTTPError } from 'ky';
@@ -57,8 +57,12 @@
 				}
 			}
 			messages.pop();
-			toast.error('Error: Could not reach the server.');
-			console.error(e);
+			if (isInvalidApiKeyError(e)) {
+				toast.error('Authentication failed - API key must be set for write access.');
+			} else {
+				toast.error('Error: Could not reach the server.');
+				console.error(e);
+			}
 		} finally {
 			loading = false;
 		}
@@ -75,6 +79,7 @@
 				api.post(`${RECOMPUTATION_CLUSTER_URL}/clear`)
 			]);
 		} catch (e) {
+			if (isInvalidApiKeyError(e)) return;
 			toast.error('Error: Could not clear cluster states');
 			console.error(e);
 		}

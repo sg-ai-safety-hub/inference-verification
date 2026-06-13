@@ -1,17 +1,18 @@
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import requests
 
 from ..lib.signed_envelope import SignedEnvelope
-from ..lib.utils import InferenceRequest, InferenceResponse, check_response
+from ..lib.utils import InferenceRequest, InferenceResponse, check_response, require_key
 
 
 class Settings(BaseSettings):
     host_key: str
     network_tap_url: str
+    api_key: str
     model_config = SettingsConfigDict(
         env_file=(".env", Path(__file__).parent / ".env"),
         dotenv_filtering="only_existing",
@@ -20,7 +21,7 @@ class Settings(BaseSettings):
 
 env = Settings()  # type: ignore
 
-app = FastAPI()
+app = FastAPI(dependencies=[Depends(require_key(env.api_key))])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -44,7 +45,9 @@ def request_inference(request: InferenceRequest) -> InferenceResponse:
     # Forward request
     print("Forwarding request:", signed_request.data.payload.messages[-1].content)
     raw_response = requests.post(
-        f"{env.network_tap_url}/request", json=signed_request.model_dump()
+        f"{env.network_tap_url}/request",
+        json=signed_request.model_dump(),
+        headers={"Authorization": f"Bearer {env.api_key}"},
     )
 
     # Check for recomputation failure

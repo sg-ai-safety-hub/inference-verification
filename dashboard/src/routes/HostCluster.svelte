@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { HOST_CLUSTER_URL } from '$env/static/public';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { api, cn } from '$lib/utils';
+	import { api, cn, isInvalidApiKeyError } from '$lib/utils';
 	import { io, type Socket } from 'socket.io-client';
 	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -38,8 +38,12 @@
 		try {
 			await api.post(`${HOST_CLUSTER_URL}/set-training`, { json: isTraining });
 		} catch (e) {
-			toast.error('Error: Could not reach the server.');
-			console.error(e);
+			if (isInvalidApiKeyError(e)) {
+				toast.error('Authentication failed - API key must be set for write access.');
+			} else {
+				toast.error('Error: Could not reach the server.');
+				console.error(e);
+			}
 		}
 	}
 </script>

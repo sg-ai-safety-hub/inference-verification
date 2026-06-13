@@ -81,7 +81,7 @@
 				<div class="flex items-center gap-2">
 					<span>Verification:</span>
 					<span class="font-bold {clusterState.verified ? 'text-green-600' : 'text-red-500'}">
-						{clusterState.verified ? 'Verified' : 'Failed'}
+						{clusterState.verified ? 'Successful' : 'Failed'}
 					</span>
 				</div>
 			{/if}
