@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { RECOMPUTATION_CLUSTER_URL } from '$app/env/public';
+	import { RECOMPUTATION_CLUSTER_URL } from '$env/static/public';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { cn } from '$lib/utils';
 	import { io, type Socket } from 'socket.io-client';

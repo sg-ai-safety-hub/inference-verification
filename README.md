@@ -17,7 +17,7 @@ https://github.com/user-attachments/assets/5e462326-9903-460f-aaa4-8940acdb7931
 ### Install
 
 ```bash
-pnpm add -g concurrently
+./install.sh
 ```
 
 ### Run
@@ -44,13 +44,12 @@ To run against an actual model, set `MOCK_INFERENCE=false` in `.env`.
 
 ```bash
 # To install
-docker pull vllm/vllm-openai-cpu:v0.22.0-x86_64
 docker create \
     -v ~/.cache/huggingface:/root/.cache/huggingface \
     -v ~/.cache/vllm:/root/.cache/vllm \
     -e KMP_TOPOLOGY_METHOD=flat \
     -e HF_TOKEN=$HF_TOKEN \
-    -p 8080:8000 \
+    -p 8000:8000 \
     --name vllm \
     vllm/vllm-openai-cpu:v0.22.0-x86_64 \
     google/gemma-3-270m-it \

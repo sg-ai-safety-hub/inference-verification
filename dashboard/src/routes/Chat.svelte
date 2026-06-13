@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { HOST_CLUSTER_URL, HOST_GATEWAY_URL, RECOMPUTATION_CLUSTER_URL } from '$app/env/public';
+	import { HOST_CLUSTER_URL, HOST_GATEWAY_URL, RECOMPUTATION_CLUSTER_URL } from '$env/static/public';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,

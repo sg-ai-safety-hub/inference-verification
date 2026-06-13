@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { HOST_CLUSTER_URL } from '$app/env/public';
+	import { HOST_CLUSTER_URL } from '$env/static/public';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { api, cn } from '$lib/utils';
 	import { io, type Socket } from 'socket.io-client';

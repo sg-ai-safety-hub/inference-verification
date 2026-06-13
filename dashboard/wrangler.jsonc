@@ -7,6 +7,12 @@
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
+	"vars": {
+		"HOST_GATEWAY_URL": "https://hostgateway.computeverification.org",
+		"NETWORK_TAP_URL": "https://networktap.computeverification.org",
+		"HOST_CLUSTER_URL": "https://hostcluster.computeverification.org",
+		"RECOMPUTATION_CLUSTER_URL": "https://recomputationcluster.computeverification.org"
+	},
 	"observability": {
 		"enabled": false,
 		"head_sampling_rate": 1,
@@ -17,9 +23,7 @@
 			"invocation_logs": true
 		},
 		"traces": {
-			"enabled": false,
-			"persist": true,
-			"head_sampling_rate": 1
+			"enabled": false
 		}
 	}
 }
