@@ -52,7 +52,7 @@
 	<CardHeader class="px-5 pb-3">
 		<CardTitle class="text-base font-semibold tracking-tight">Host Cluster</CardTitle>
 	</CardHeader>
-	<CardContent class="flex min-h-0 flex-1 flex-row gap-3 p-5 pt-0">
+	<CardContent class="flex min-h-0 flex-1 flex-row gap-3 px-5 py-0">
 		<!-- Status panel -->
 		<div
 			class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-border bg-zinc-100 p-3 font-mono text-base"
