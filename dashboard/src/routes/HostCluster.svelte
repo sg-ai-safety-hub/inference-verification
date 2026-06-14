@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { HOST_CLUSTER_URL } from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { api, cn, isInvalidApiKeyError } from '$lib/utils';
 	import { io, type Socket } from 'socket.io-client';
@@ -26,7 +26,7 @@
 	let socket: Socket;
 
 	onMount(() => {
-		socket = io(HOST_CLUSTER_URL);
+		socket = io(env.HOST_CLUSTER_URL);
 		socket.on('connect', () => (connected = true));
 		socket.on('disconnect', () => (connected = false));
 		socket.on('state', (data: State) => (clusterState = data));
@@ -36,7 +36,7 @@
 
 	async function setTraining(isTraining: boolean) {
 		try {
-			await api.post(`${HOST_CLUSTER_URL}/set-training`, { json: isTraining });
+			await api.post(`${env.HOST_CLUSTER_URL}/set-training`, { json: isTraining });
 		} catch (e) {
 			if (isInvalidApiKeyError(e)) {
 				toast.error('Authentication failed - API key must be set for write access.');

@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { HOST_CLUSTER_URL, HOST_GATEWAY_URL, RECOMPUTATION_CLUSTER_URL } from '$env/static/public';
+	import {
+		env 
+	} from '$env/dynamic/public';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
@@ -40,11 +42,11 @@
 		try {
 			// Reset cluster state to ready before submitting
 			await Promise.all([
-				api.post(`${HOST_CLUSTER_URL}/clear`),
-				api.post(`${RECOMPUTATION_CLUSTER_URL}/clear`)
+				api.post(`${env.HOST_CLUSTER_URL}/clear`),
+				api.post(`${env.RECOMPUTATION_CLUSTER_URL}/clear`)
 			]);
 			const data = await api
-				.post(`${HOST_GATEWAY_URL}/request`, { json: { messages }, timeout: false })
+				.post(`${env.HOST_GATEWAY_URL}/request`, { json: { messages }, timeout: false })
 				.json<{ responseText: string }>();
 			messages.push({ role: 'assistant', content: data.responseText });
 		} catch (e) {

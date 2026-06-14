@@ -6,7 +6,13 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
-		// interface Platform {}
+		interface Platform {
+			env?: {
+				HOST_CLUSTER_URL: string;
+				HOST_GATEWAY_URL: string;
+				RECOMPUTATION_CLUSTER_URL: string;
+			};
+		}
 	}
 }
 

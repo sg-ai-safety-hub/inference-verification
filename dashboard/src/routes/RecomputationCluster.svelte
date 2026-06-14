@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { RECOMPUTATION_CLUSTER_URL } from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { cn } from '$lib/utils';
 	import { io, type Socket } from 'socket.io-client';
@@ -27,7 +27,7 @@
 	let socket: Socket;
 
 	onMount(() => {
-		socket = io(RECOMPUTATION_CLUSTER_URL);
+		socket = io(env.RECOMPUTATION_CLUSTER_URL);
 		socket.on('connect', () => (connected = true));
 		socket.on('disconnect', () => (connected = false));
 		socket.on('state', (data: State) => (clusterState = data));
