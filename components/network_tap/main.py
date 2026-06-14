@@ -57,4 +57,4 @@ def request_inference(
         return response
     else:
         print("Response verification failed")
-        raise HTTPException(status_code=502, detail="Recomputation failed")
+        raise HTTPException(status_code=400, detail="Recomputation failed")

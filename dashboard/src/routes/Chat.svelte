@@ -52,7 +52,7 @@
 		} catch (e) {
 			input = text;
 			// Handle recomputation error
-			if (e instanceof HTTPError && e.response.status === 502) {
+			if (e instanceof HTTPError && e.response.status === 400) {
 				if (e.data.detail === 'Recomputation failed') {
 					recomputationError = true;
 					return;

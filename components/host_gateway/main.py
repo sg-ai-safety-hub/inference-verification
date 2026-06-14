@@ -52,11 +52,11 @@ def request_inference(request: InferenceRequest) -> InferenceResponse:
 
     # Check for recomputation failure
     if (
-        raw_response.status_code == 502
+        raw_response.status_code == 400
         and raw_response.headers.get("Content-Type") == "application/json"
         and raw_response.json().get("detail") == "Recomputation failed"
     ):
-        raise HTTPException(status_code=502, detail="Recomputation failed")
+        raise HTTPException(status_code=400, detail="Recomputation failed")
     check_response(raw_response)
 
     # Else, verify and return response
