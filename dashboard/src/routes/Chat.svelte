@@ -77,8 +77,8 @@
 		recomputationError = false;
 		try {
 			await Promise.all([
-				api.post(`${HOST_CLUSTER_URL}/clear`),
-				api.post(`${RECOMPUTATION_CLUSTER_URL}/clear`)
+				api.post(`${env.HOST_CLUSTER_URL}/clear`),
+				api.post(`${env.RECOMPUTATION_CLUSTER_URL}/clear`)
 			]);
 		} catch (e) {
 			if (isInvalidApiKeyError(e)) return;
