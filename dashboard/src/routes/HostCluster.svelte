@@ -13,7 +13,11 @@
 		response: string | null;
 	};
 
-	let { class: className }: { class?: string } = $props();
+	let {
+		class: className,
+		textA = 'Inference',
+		textB = 'Training'
+	}: { class?: string; textA?: string; textB?: string } = $props();
 
 	let connected = $state(false);
 	let clusterState: State = $state({
@@ -68,7 +72,7 @@
 			<div class="flex items-center gap-2">
 				<span>Mode:</span>
 				<span class="font-bold {clusterState.is_training ? 'text-red-500' : 'text-green-600'}">
-					{clusterState.is_training ? 'Training' : 'Inference'}
+					{clusterState.is_training ? textB : textA}
 				</span>
 			</div>
 
@@ -97,7 +101,7 @@
 					: 'bg-green-600/40 hover:bg-green-600'}"
 				onclick={() => setTraining(false)}
 			>
-				Run Inference
+				Run {textA}
 			</button>
 			<button
 				class="rounded-md px-4 py-3 text-base font-medium text-white transition-colors {clusterState.is_training
@@ -105,7 +109,7 @@
 					: 'bg-red-600/40 hover:bg-red-600'}"
 				onclick={() => setTraining(true)}
 			>
-				Run Training
+				Run {textB}
 			</button>
 		</div>
 	</CardContent>
