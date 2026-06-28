@@ -4,8 +4,7 @@ A prototype demo for verifying LLM inference. This system is split into several 
 
 ![architecture](docs/architecture.svg)
 
-https://github.com/user-attachments/assets/5e462326-9903-460f-aaa4-8940acdb7931
-
+https://github.com/user-attachments/assets/cbe8e8a1-65a9-4ef9-a9c3-f1889ef53ae3
 ## Getting started
 
 ### Requirements
