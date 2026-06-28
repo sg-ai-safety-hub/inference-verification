@@ -30,7 +30,7 @@
 	let socket: Socket;
 
 	onMount(() => {
-		socket = io(env.HOST_CLUSTER_URL);
+		socket = io(env.MAIN_CLUSTER_URL);
 		socket.on('connect', () => (connected = true));
 		socket.on('disconnect', () => (connected = false));
 		socket.on('state', (data: State) => (clusterState = data));
@@ -40,7 +40,7 @@
 
 	async function setTraining(isTraining: boolean) {
 		try {
-			await api.post(`${env.HOST_CLUSTER_URL}/set-training`, { json: isTraining });
+			await api.post(`${env.MAIN_CLUSTER_URL}/set-training`, { json: isTraining });
 		} catch (e) {
 			if (isInvalidApiKeyError(e)) {
 				toast.error('Authentication failed - API key must be set for write access.');

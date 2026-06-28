@@ -31,9 +31,9 @@ https://github.com/user-attachments/assets/5e462326-9903-460f-aaa4-8940acdb7931
 | Service               | Port |
 | --------------------- | ---- |
 | dashboard             | 5173 |
-| Host Gateway          | 8010 |
-| Network Tap           | 8020 |
-| Host Cluster          | 8030 |
+| Gateway               | 8010 |
+| Network Logger        | 8020 |
+| Main Cluster          | 8030 |
 | Recomputation Cluster | 8040 |
 
 ## Inference backend

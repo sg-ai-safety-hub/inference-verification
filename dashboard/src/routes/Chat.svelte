@@ -42,11 +42,11 @@
 		try {
 			// Reset cluster state to ready before submitting
 			await Promise.all([
-				api.post(`${env.HOST_CLUSTER_URL}/clear`),
+				api.post(`${env.MAIN_CLUSTER_URL}/clear`),
 				api.post(`${env.RECOMPUTATION_CLUSTER_URL}/clear`)
 			]);
 			const data = await api
-				.post(`${env.HOST_GATEWAY_URL}/request`, { json: { messages }, timeout: false })
+				.post(`${env.GATEWAY_URL}/request`, { json: { messages }, timeout: false })
 				.json<{ responseText: string }>();
 			messages.push({ role: 'assistant', content: data.responseText });
 		} catch (e) {
@@ -77,7 +77,7 @@
 		recomputationError = false;
 		try {
 			await Promise.all([
-				api.post(`${env.HOST_CLUSTER_URL}/clear`),
+				api.post(`${env.MAIN_CLUSTER_URL}/clear`),
 				api.post(`${env.RECOMPUTATION_CLUSTER_URL}/clear`)
 			]);
 		} catch (e) {

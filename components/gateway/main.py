@@ -11,7 +11,7 @@ from ..lib.utils import InferenceRequest, InferenceResponse, check_response, req
 
 class Settings(BaseSettings):
     host_key: str
-    network_tap_url: str
+    network_logger_url: str
     api_key: str
     model_config = SettingsConfigDict(
         env_file=(".env", Path(__file__).parent / ".env"),
@@ -45,7 +45,7 @@ def request_inference(request: InferenceRequest) -> InferenceResponse:
     # Forward request
     print("Forwarding request:", signed_request.data.payload.messages[-1].content)
     raw_response = requests.post(
-        f"{env.network_tap_url}/request",
+        f"{env.network_logger_url}/request",
         json=signed_request.model_dump(),
         headers={"Authorization": f"Bearer {env.api_key}"},
     )

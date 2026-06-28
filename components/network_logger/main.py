@@ -7,7 +7,7 @@ from ..lib.utils import InferenceRequest, InferenceResponse, check_response, req
 
 
 class Settings(BaseSettings):
-    host_cluster_url: str
+    main_cluster_url: str
     recomputation_cluster_url: str
     api_key: str
     model_config = SettingsConfigDict(
@@ -25,11 +25,11 @@ app = FastAPI(dependencies=[Depends(require_key(env.api_key))])
 def request_inference(
     signed_request: SignedEnvelope[InferenceRequest],
 ) -> SignedEnvelope[InferenceResponse]:
-    # Forward request to host cluster
+    # Forward request to main cluster
     # More sanitation and bandwidth limiting could be added in the future
     print("Forwarding request:", signed_request.data.payload.messages[-1].content)
     raw_response = requests.post(
-        f"{env.host_cluster_url}/request",
+        f"{env.main_cluster_url}/request",
         json=signed_request.model_dump(),
         headers={"Authorization": f"Bearer {env.api_key}"},
     )

@@ -8,8 +8,8 @@ declare global {
 		// interface PageState {}
 		interface Platform {
 			env?: {
-				HOST_CLUSTER_URL: string;
-				HOST_GATEWAY_URL: string;
+				MAIN_CLUSTER_URL: string;
+				GATEWAY_URL: string;
 				RECOMPUTATION_CLUSTER_URL: string;
 			};
 		}

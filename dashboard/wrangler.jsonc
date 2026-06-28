@@ -8,9 +8,9 @@
 		"directory": ".svelte-kit/cloudflare"
 	},
 	"vars": {
-		"HOST_GATEWAY_URL": "https://hostgateway.computeverification.org",
-		"NETWORK_TAP_URL": "https://networktap.computeverification.org",
-		"HOST_CLUSTER_URL": "https://hostcluster.computeverification.org",
+		"GATEWAY_URL": "https://gateway.computeverification.org",
+		"NETWORK_LOGGER_URL": "https://networklogger.computeverification.org",
+		"MAIN_CLUSTER_URL": "https://maincluster.computeverification.org",
 		"RECOMPUTATION_CLUSTER_URL": "https://recomputationcluster.computeverification.org"
 	},
 	"observability": {
