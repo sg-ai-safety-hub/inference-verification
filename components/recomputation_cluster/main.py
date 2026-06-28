@@ -1,3 +1,5 @@
+import asyncio
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI
@@ -5,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import socketio
 
-from ..lib.inference import run_inference
+from ..lib.inference import run_inference, wait_for_inference_ready
 from ..lib.secure_envelope import SecureEnvelope
 from ..lib.utils import InferenceRequest, InferenceResponse, require_key
 
@@ -21,7 +23,27 @@ class Settings(BaseSettings):
 
 env = Settings()  # type: ignore
 
-app = FastAPI(dependencies=[Depends(require_key(env.api_key))])
+
+async def load_inference():
+    # Poll the inference server
+    await wait_for_inference_ready(on_attempt=lambda: print("Waiting for inference server..."))
+    state["status"] = "Ready"
+    await sio.emit("state", state)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(load_inference())
+    try:
+        yield
+    finally:
+        task.cancel()
+
+
+app = FastAPI(
+    dependencies=[Depends(require_key(env.api_key))],
+    lifespan=lifespan,
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -37,7 +59,7 @@ app.mount("/socket.io", socketio.ASGIApp(sio, socketio_path=""))
 
 
 state = {
-    "status": "Ready",
+    "status": "Loading",
     "request": None,
     "received_response": None,
     "recomputed_response": None,

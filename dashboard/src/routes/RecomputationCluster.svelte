@@ -6,7 +6,7 @@
 	import { onDestroy, onMount } from 'svelte';
 
 	type State = {
-		status: 'Ready' | 'Running' | 'Done';
+		status: 'Loading' | 'Ready' | 'Running' | 'Done';
 		request: string | null;
 		received_response: string | null;
 		recomputed_response: string | null;
@@ -17,7 +17,7 @@
 
 	let connected = $state(false);
 	let clusterState: State = $state({
-		status: 'Ready',
+		status: 'Loading',
 		request: null,
 		received_response: null,
 		recomputed_response: null,
@@ -47,7 +47,10 @@
 		>
 			<!-- Connection / status -->
 			<div class="flex items-center gap-2">
-				<span class="size-2 shrink-0 rounded-full {connected ? 'bg-green-500' : 'bg-zinc-600'}"
+				<span
+					class="size-2 shrink-0 rounded-full {connected && clusterState.status !== 'Loading'
+						? 'bg-green-500'
+						: 'bg-zinc-600'}"
 				></span>
 				<span class="">{connected ? clusterState.status : 'Disconnected'}</span>
 			</div>

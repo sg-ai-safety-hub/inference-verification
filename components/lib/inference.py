@@ -20,6 +20,22 @@ class InferenceSettings(BaseSettings):
 env = InferenceSettings()  # type: ignore
 client = OpenAI(base_url=env.inference_url, api_key="unused")
 
+# Poll the inference server until it is ready
+async def wait_for_inference_ready(
+    on_attempt: Callable[[], None] = lambda: None,
+    poll_interval: float = 2.0,
+) -> None:
+    if env.mock_inference:
+        return
+    while True:
+        try:
+            await asyncio.to_thread(client.models.list)
+            return
+        except Exception as e:
+            print("Inference server not ready yet:", e)
+            on_attempt()
+            await asyncio.sleep(poll_interval)
+
 
 async def run_inference(
     request: InferenceRequest,

@@ -7,7 +7,7 @@
 	import { toast } from 'svelte-sonner';
 
 	type State = {
-		status: 'Ready' | 'Running' | 'Done';
+		status: 'Loading' | 'Ready' | 'Running' | 'Done';
 		is_training: boolean;
 		request: string | null;
 		response: string | null;
@@ -21,7 +21,7 @@
 
 	let connected = $state(false);
 	let clusterState: State = $state({
-		status: 'Ready',
+		status: 'Loading',
 		is_training: false,
 		request: null,
 		response: null
@@ -63,7 +63,10 @@
 		>
 			<!-- Connection / status -->
 			<div class="flex items-center gap-2">
-				<span class="size-2 shrink-0 rounded-full {connected ? 'bg-green-500' : 'bg-zinc-600'}"
+				<span
+					class="size-2 shrink-0 rounded-full {connected && clusterState.status !== 'Loading'
+						? 'bg-green-500'
+						: 'bg-zinc-600'}"
 				></span>
 				<span class="">{connected ? clusterState.status : 'Disconnected'}</span>
 			</div>
