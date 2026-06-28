@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import socketio
 
 from ..lib.inference import run_inference
-from ..lib.signed_envelope import SignedEnvelope
+from ..lib.secure_envelope import SecureEnvelope
 from ..lib.utils import InferenceRequest, InferenceResponse, require_key
 from pathlib import Path
 
@@ -51,10 +51,10 @@ async def connect(sid, environ, auth):
 
 @app.post("/request")
 async def request_inference(
-    signed_request: SignedEnvelope[InferenceRequest],
-) -> SignedEnvelope[InferenceResponse]:
-    # Unwrap and verify request
-    request = signed_request.unwrap(key=env.host_key).payload
+    secure_request: SecureEnvelope[InferenceRequest],
+) -> SecureEnvelope[InferenceResponse]:
+    # Decrypt and verify request
+    request = secure_request.unwrap(key=env.host_key, direction="request").payload
 
     # Broadcast the received request
     state["status"] = "Running"
@@ -74,11 +74,12 @@ async def request_inference(
     state["response"] = response.response_text
     await sio.emit("state", state)
 
-    # Sign and return response
-    return SignedEnvelope.wrap(
-        id=signed_request.data.id,  # Match ID
+    # Encrypt and return response
+    return SecureEnvelope.wrap(
+        id=secure_request.id,  # Match ID
         payload=response,
         key=env.host_key,
+        direction="response",
     )
 
 

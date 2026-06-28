@@ -5,6 +5,7 @@ description = "inference verification prototype demo"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "cryptography>=49.0.0",
     "fastapi[standard]>=0.136.3",
     "openai>=2.40.0",
     "python-socketio>=5.16.2",

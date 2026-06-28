@@ -1,17 +1,20 @@
+from pathlib import Path
+
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import socketio
 
 from ..lib.inference import run_inference
-from ..lib.signed_envelope import SignedEnvelope
+from ..lib.secure_envelope import SecureEnvelope
 from ..lib.utils import InferenceRequest, InferenceResponse, require_key
 
 
 class Settings(BaseSettings):
+    host_key: str  # decryption key for recomputation
     api_key: str
     model_config = SettingsConfigDict(
-        env_file=(".env"),
+        env_file=(".env", Path(__file__).parent / ".env"),
         dotenv_filtering="only_existing",
     )
 
@@ -50,12 +53,12 @@ async def connect(sid, environ, auth):
 
 @app.post("/verify")
 async def verify_inference(
-    signed_request: SignedEnvelope[InferenceRequest],
-    signed_response: SignedEnvelope[InferenceResponse],
+    secure_request: SecureEnvelope[InferenceRequest],
+    secure_response: SecureEnvelope[InferenceResponse],
 ):
-    # Unwrap request and response
-    request = signed_request.data.payload
-    response = signed_response.data.payload
+    # Decrypt and verify request and response
+    request = secure_request.unwrap(key=env.host_key, direction="request").payload
+    response = secure_response.unwrap(key=env.host_key, direction="response").payload
 
     # Broadcast the received request and response
     state["status"] = "Running"

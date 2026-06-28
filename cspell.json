@@ -6,6 +6,7 @@
   "dictionaryDefinitions": [],
   "dictionaries": [],
   "words": [
+    "AESGCMSIV",
     "ASGI",
     "dotenv",
     "esbuild",

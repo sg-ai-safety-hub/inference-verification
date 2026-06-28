@@ -1,4 +1,4 @@
-# Inference Verification
+# Inference Verification Prototype
 
 A prototype demo for verifying LLM inference. This system is split into several FastAPI backends together with a Svelte dashboard.
 
@@ -30,7 +30,7 @@ https://github.com/user-attachments/assets/5e462326-9903-460f-aaa4-8940acdb7931
 
 | Service               | Port |
 | --------------------- | ---- |
-| dashboard             | 5173 |
+| Dashboard             | 5173 |
 | Gateway               | 8010 |
 | Network Logger        | 8020 |
 | Main Cluster          | 8030 |
