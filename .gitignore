@@ -2,3 +2,4 @@ test.http
 test.py
 __pycache__
 .env
+monitor.sh
