@@ -94,10 +94,20 @@ async def verify_inference(
     print(f"Running recomputation for message: {request.messages[-1].content}")
     recomputed = await run_inference(request, on_chunk=log_chunk)
 
-    # Compare responses
+    # Compare the exact envelope that will be forwarded, not just the decrypted text:
+    # the ciphertext and ID could otherwise carry extra data that passes verification
     print(f"Received response:   {response.response_text}")
     print(f"Recomputed response: {recomputed.response_text}")
-    verified = recomputed.response_text == response.response_text
+    expected = SecureEnvelope.wrap(
+        id=secure_request.id,
+        payload=recomputed,
+        key=env.host_key,
+        direction="response",
+    )
+    verified = (
+        secure_response.id == secure_request.id
+        and secure_response.ciphertext == expected.ciphertext
+    )
     print(f"Verification {"successful" if verified else "failed"}")
 
     # Broadcast the recomputed response and verification result
